@@ -1,0 +1,374 @@
+/* ============================================================
+   Mind Map — style.css
+   Light/dark theme via [data-theme] on <html>
+   ============================================================ */
+
+/* ── Design tokens ── */
+:root {
+  --color-bg: #f5f6fa;
+  --color-surface: #ffffff;
+  --color-border: #d0d4e0;
+  --color-text: #1a1d2e;
+  --color-text-muted: #6b7280;
+  --color-primary: #5a6ff0;
+  --color-primary-dark: #3f52cc;
+  --color-root: #5a6ff0;
+  --color-root-text: #ffffff;
+  --color-node-bg: #ffffff;
+  --color-node-text: #1a1d2e;
+  --color-node-selected: #5a6ff0;
+  --color-node-selected-text: #ffffff;
+  --color-edge: #9da5be;
+  --color-edge-width: 1.5;
+  --color-collapse: #9da5be;
+  --color-toolbar: #ffffff;
+  --color-status: #f0f1f5;
+  --color-modal-overlay: rgba(0,0,0,0.4);
+  --shadow-node: drop-shadow(1px 2px 4px rgba(0,0,0,0.10));
+  --radius: 8px;
+  --toolbar-h: 48px;
+  --status-h: 28px;
+}
+
+[data-theme="dark"] {
+  --color-bg: #12131a;
+  --color-surface: #1e2030;
+  --color-border: #2e3249;
+  --color-text: #e0e2f0;
+  --color-text-muted: #8890a8;
+  --color-primary: #7b8ff5;
+  --color-primary-dark: #5a6ff0;
+  --color-root: #7b8ff5;
+  --color-root-text: #ffffff;
+  --color-node-bg: #262840;
+  --color-node-text: #e0e2f0;
+  --color-node-selected: #7b8ff5;
+  --color-node-selected-text: #ffffff;
+  --color-edge: #4a5068;
+  --color-collapse: #6870a0;
+  --color-toolbar: #1e2030;
+  --color-status: #1a1c2a;
+  --shadow-node: drop-shadow(1px 2px 6px rgba(0,0,0,0.40));
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  height: var(--toolbar-h);
+  background: var(--color-toolbar);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  gap: 8px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.toolbar-left, .toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.app-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-primary);
+  margin-right: 8px;
+  user-select: none;
+}
+
+/* ── Buttons ── */
+.btn {
+  padding: 5px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn:hover {
+  background: var(--color-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.btn-icon {
+  padding: 5px 8px;
+  min-width: 28px;
+  text-align: center;
+}
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary-dark);
+}
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+  color: #fff;
+}
+
+/* ── Dropdown ── */
+.dropdown {
+  position: relative;
+}
+.dropdown:hover .dropdown-menu,
+.dropdown:focus-within .dropdown-menu {
+  display: flex;
+}
+.dropdown-menu {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  min-width: 160px;
+  z-index: 100;
+  padding: 4px;
+}
+.dropdown-item {
+  padding: 7px 12px;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.dropdown-item:hover {
+  background: var(--color-bg);
+  color: var(--color-primary);
+}
+
+/* ── Canvas ── */
+.canvas-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+#mind-map-svg {
+  width: 100%;
+  height: 100%;
+  cursor: default;
+  display: block;
+  background: var(--color-bg);
+}
+
+/* ── SVG nodes & edges ── */
+.edge {
+  fill: none;
+  stroke: var(--color-edge);
+  stroke-width: var(--color-edge-width);
+  stroke-linecap: round;
+}
+
+.node-rect {
+  fill: var(--color-node-bg);
+  stroke: var(--color-border);
+  stroke-width: 1.5;
+  filter: var(--shadow-node);
+  cursor: pointer;
+  transition: fill 0.15s, stroke 0.15s;
+}
+.node-rect.root {
+  fill: var(--color-root);
+  stroke: var(--color-primary-dark);
+}
+.node-rect.selected {
+  fill: var(--color-node-selected);
+  stroke: var(--color-primary-dark);
+  stroke-width: 2;
+}
+.node-rect.root.selected {
+  fill: var(--color-root);
+  stroke: #fff;
+}
+
+.node-text {
+  fill: var(--color-node-text);
+  font-size: 12px;
+  font-family: system-ui, sans-serif;
+  pointer-events: none;
+  user-select: none;
+}
+.node-rect.root ~ .node-text,
+.node-group:has(.root) .node-text {
+  fill: var(--color-root-text);
+}
+.node-rect.selected ~ .node-text {
+  fill: var(--color-node-selected-text);
+}
+
+/* Node groups: root text white */
+.node-group .node-rect.root + text.node-text { fill: #fff; }
+.node-group .node-rect.selected + text.node-text { fill: #fff; }
+
+.collapse-toggle {
+  fill: var(--color-surface);
+  stroke: var(--color-collapse);
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+.collapse-arrow {
+  fill: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: bold;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Inline editor */
+.node-editor {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: 2px solid var(--color-primary);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 12px;
+  font-family: system-ui, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* ── Status bar ── */
+.status-bar {
+  height: var(--status-h);
+  background: var(--color-status);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+.sep { opacity: 0.4; }
+
+/* ── Modal ── */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: var(--color-modal-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.modal[hidden] { display: none; }
+.modal-content {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  width: min(480px, 95vw);
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border);
+}
+.modal-header h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.close-btn {
+  border: none;
+  background: none;
+  font-size: 16px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.close-btn:hover { color: var(--color-text); }
+.modal-body {
+  padding: 16px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+/* ── Shortcuts table ── */
+.shortcuts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.shortcuts-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
+}
+.shortcuts-table tr:last-child td { border-bottom: none; }
+kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+
+/* ── Import form ── */
+.select {
+  padding: 5px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 13px;
+}
+.import-textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.import-textarea:focus {
+  outline: 2px solid var(--color-primary);
+  border-color: transparent;
+}
+
+/* ── Focus outline for accessibility ── */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
