@@ -57,3 +57,10 @@ Node.js 18+ required (uses `node:test`).
 ## License
 
 MIT © 2026 SEN LLC (SEN 合同会社)
+
+<!-- sen-publish:links -->
+## Links
+
+- 🌐 Demo: https://sen.ltd/portfolio/mind-map/
+- 📝 dev.to: https://dev.to/sendotltd/a-keyboard-first-svg-mind-map-editor-with-tab-to-add-child-and-markdown-export-225o
+<!-- /sen-publish:links -->
